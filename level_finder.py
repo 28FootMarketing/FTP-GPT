@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 st.set_page_config(page_title="Level Finder GPT", layout="centered")
-st.title("Level Finder GPT")
+st.title(" Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
 # Full sport data with expanded Baseball and Softball
@@ -123,8 +123,15 @@ if submitted:
             "experience": experience
         }
         try:
-            response = requests.post("https://n8n.srv931648.hstgr.cloud/webhook-test/level-finder", json=payload)
-            result = response.json()
+            response = requests.post("https://your-vps-url.com/webhook/level-finder", json=payload)
+
+            try:
+                result = response.json()
+            except ValueError:
+                st.error("❌ Response is not valid JSON. Here is the raw output:")
+                st.text(response.text)
+                st.stop()
+
             if result.get("success"):
                 st.markdown("### ✅ GPT Recommendation")
                 st.markdown(f"**🏅 Recommended Level:** {result.get('level')}")
@@ -137,5 +144,6 @@ if submitted:
                 st.error("AI analysis failed.")
                 st.text(f"Error: {result.get('error')}")
                 st.text(f"Raw Output: {result.get('rawOutput')}")
+
         except Exception as e:
             st.error(f"Error occurred: {e}")
