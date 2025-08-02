@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="🏀 Level Finder GPT", layout="centered")
-st.title("🏀 Level Finder GPT")
+st.set_page_config(page_title="Level Finder GPT", layout="centered")
+st.title("Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
 # Full sport data with expanded Baseball and Softball
@@ -123,7 +123,7 @@ if submitted:
             "experience": experience
         }
         try:
-            response = requests.post("https://your-vps-url.com/webhook/level-finder", json=payload)
+            response = requests.post("https://n8n.srv931648.hstgr.cloud/webhook-test/level-finder", json=payload)
             result = response.json()
             if result.get("success"):
                 st.markdown("### ✅ GPT Recommendation")
