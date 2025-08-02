@@ -1,90 +1,74 @@
-
+from datetime import datetime
 import streamlit as st
 import requests
-import json
-from datetime import datetime
 
-st.set_page_config(page_title="Level Finder GPT", page_icon="🏆", layout="centered")
+# Page configuration
+st.set_page_config(page_title="Level Finder GPT", page_icon="🏅", layout="centered")
+st.markdown("<h2 style='text-align: center;'>🎯 Level Finder GPT</h2>", unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center;'>🏆 Level Finder GPT</h1>", unsafe_allow_html=True)
-st.markdown("Use this form to evaluate your current recruiting level based on your profile. Fill in all fields accurately.")
+# Toggle for "Am I D1?" Self-Check Mode
+is_d1_check = st.toggle("🧠 Am I D1? Self-Check Mode")
 
-# Full NFHS sports list
-sports = [
-    "Baseball", "Softball", "Basketball", "Football", "Soccer", "Volleyball", "Wrestling",
-    "Track and Field", "Cross Country", "Swimming and Diving", "Tennis", "Golf",
-    "Lacrosse", "Field Hockey", "Gymnastics", "Ice Hockey", "Cheerleading", "Dance",
-    "Bowling", "Esports", "Badminton", "Water Polo", "Rugby", "Weightlifting", "Skiing", "Snowboarding"
-]
+# Input fields
+with st.form("level_finder_form"):
+    name = st.text_input("Name")
+    sport = st.selectbox("Sport", ["Basketball", "Football", "Soccer", "Baseball", "Softball", "Track and Field"])
+    gpa = st.text_input("GPA", "3.8")
+    age = st.text_input("Age", "17")
+    height = st.text_input("Height", "6'2\"")
+    weight = st.text_input("Weight", "180 lbs")
+    experience = st.text_input("Experience", "4 years varsity")
+    position = st.text_input("Position", "")
+    stats = st.text_area("Stats (Sport-specific)", "15 PPG, 8 RPG, 5 APG")
+    activity = st.text_input("Activity Level", "Daily training, 3 games/week")
+    submit = st.form_submit_button("Evaluate Level")
 
-sport = st.selectbox("Sport", sports)
-
-positions_map = {
-    "Baseball": ["Pitcher", "Catcher", "Infield", "Outfield", "Utility"],
-    "Softball": ["Pitcher", "Catcher", "Infield", "Outfield", "Utility"],
-    "Basketball": ["Point Guard", "Shooting Guard", "Small Forward", "Power Forward", "Center"],
-    "Football": ["Quarterback", "Running Back", "Wide Receiver", "Tight End", "Linebacker", "Defensive Back", "Offensive Lineman", "Defensive Lineman", "Kicker"],
-    "Soccer": ["Goalkeeper", "Defender", "Midfielder", "Forward"],
-    "Volleyball": ["Setter", "Outside Hitter", "Middle Blocker", "Libero", "Opposite Hitter"],
-    "Wrestling": ["Lightweight", "Middleweight", "Heavyweight"],
-    "Esports": ["FPS", "MOBA", "Sports Sim", "Fighting"],
-    # Add remaining sports and default roles
-}
-
-position = st.selectbox("Position", positions_map.get(sport, ["General"]))
-
-stat_categories = {
-    "Baseball": ["ERA", "Batting Avg", "Home Runs", "RBIs", "Fielding %"],
-    "Softball": ["ERA", "Batting Avg", "Home Runs", "RBIs", "Fielding %"],
-    "Basketball": ["Points Per Game", "Rebounds", "Assists", "Steals", "Blocks"],
-    "Football": ["Passing Yards", "Rushing Yards", "Tackles", "Sacks", "Interceptions"],
-    "Soccer": ["Goals", "Assists", "Saves", "Tackles", "Pass Completion %"],
-    "Volleyball": ["Kills", "Blocks", "Aces", "Digs", "Assists"],
-    "Wrestling": ["Win %", "Pins", "Takedowns", "Escapes"],
-    "Esports": ["K/D Ratio", "Win %", "Reaction Time", "Game Rank"],
-    # Expand for all NFHS sports
-}
-
-# Dynamic stat fields
-st.subheader("Enter Your Key Stats")
-stats = {}
-for category in stat_categories.get(sport, ["Custom Stat 1", "Custom Stat 2"]):
-    stats[category] = st.text_input(f"{category}")
-
-st.subheader("Academic and Personal Info")
-gpa = st.text_input("GPA", "3.5")
-age = st.text_input("Age", "17")
-height = st.text_input("Height", "6'2\"")
-weight = st.text_input("Weight", "180 lbs")
-experience = st.text_input("Experience (e.g. 3 years varsity)", "")
-activity = st.text_input("Training/Playing Activity", "3 games per week, daily practice")
-
-if st.button("Analyze My Level"):
-    with st.spinner("Analyzing..."):
-        payload = {
-            "sport": sport,
-            "position": position,
-            "gpa": gpa,
-            "age": age,
-            "height": height,
-            "weight": weight,
-            "experience": experience,
-            "activity": activity,
-            "stats": ", ".join([f"{k}: {v}" for k, v in stats.items()])
-        }
-
+if submit:
+    with st.spinner("Evaluating..."):
         try:
-            res = requests.post("http://localhost:5678/webhook/level-finder", json=payload)
-            res.raise_for_status()
-            result = res.json()
-            st.success("Analysis complete!")
+            payload = {
+                "name": name,
+                "sport": sport,
+                "gpa": gpa,
+                "age": age,
+                "height": height,
+                "weight": weight,
+                "experience": experience,
+                "position": position,
+                "stats": stats,
+                "activity": activity,
+                "d1_check": is_d1_check
+            }
+            response = requests.post("https://ftp-gpt.streamlit.app/api/level-finder", json=payload)
+            result = response.json()
 
-            st.subheader("📊 Recommended Level")
-            st.markdown(f"**Level:** {result['level']}")
-            st.markdown(f"**Reason:** {result['reason']}")
-            st.markdown("**Action Steps:**")
-            for step in result["actions"]:
-                st.markdown(f"- {step}")
-            st.markdown(f"**Summary:** {result['summary']}")
+            if result.get("success"):
+                st.success("Evaluation Complete")
+                st.markdown(f"### 🧾 Recommendation Summary")
+                st.markdown(f"**Recommended Level:** {result['level']}")
+                st.markdown(f"**Reason:** {result['reason']}")
+                st.markdown("**Action Steps:**")
+                for step in result.get("actions", []):
+                    st.markdown(f"- {step}")
+                st.markdown(f"**Summary:** {result['summary']}")
+                st.markdown(f"**Timestamp:** {result['timestamp']}")
+
+                with st.expander("📌 Full Input + Evaluation Log"):
+                    st.text(f"Name: {name}")
+                    st.text(f"Sport: {sport}")
+                    st.text(f"GPA: {gpa}")
+                    st.text(f"Age: {age}")
+                    st.text(f"Height: {height}")
+                    st.text(f"Weight: {weight}")
+                    st.text(f"Experience: {experience}")
+                    st.text(f"Position: {position}")
+                    st.text(f"Stats: {stats}")
+                    st.text(f"Activity: {activity}")
+                    st.text(f"Self-Check D1 Mode: {'Enabled' if is_d1_check else 'Disabled'}")
+
+            else:
+                st.error(f"Error: {result.get('error', 'Unknown error')}")
+                st.text(result.get("rawOutput", "No raw output returned."))
+
         except Exception as e:
-            st.error(f"Error occurred: {e}")
+            st.error(f"Exception occurred: {str(e)}")
