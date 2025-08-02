@@ -50,7 +50,7 @@ st.markdown("### 🧍 Athlete Information")
 name = st.text_input("Athlete Name")
 col1, col2, col3 = st.columns(3)
 with col1:
-    height = st.text_input("Height", "6'2"")
+    height = st.text_input("Height", "6'2\"")
 with col2:
     weight = st.text_input("Weight", "180 lbs")
 with col3:
