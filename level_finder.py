@@ -5,7 +5,7 @@ st.set_page_config(page_title="🏀 Level Finder GPT", layout="centered")
 st.title("🏀 Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
-# Updated and expanded Baseball and Softball stats
+# Full sport data with expanded Baseball and Softball
 sport_data = {
     "Basketball": {
         "PG": ["PPG", "APG", "Steals", "FG%"],
@@ -13,6 +13,21 @@ sport_data = {
         "SF": ["PPG", "RPG", "Steals", "Blocks"],
         "PF": ["PPG", "RPG", "Blocks", "FG%"],
         "C":  ["RPG", "Blocks", "FG%", "PPG"]
+    },
+    "Football": {
+        "QB": ["Passing Yards", "TDs", "Completions", "INTs"],
+        "RB": ["Rushing Yards", "TDs", "Carries", "Yards/Carry"],
+        "WR": ["Receiving Yards", "TDs", "Receptions", "Yards/Catch"],
+        "LB": ["Tackles", "Sacks", "INTs", "Forced Fumbles"],
+        "DB": ["Tackles", "INTs", "Passes Defended", "TDs"],
+        "OL": ["Pancake Blocks", "Penalties", "Sacks Allowed"],
+        "DL": ["Tackles", "Sacks", "Pressures", "TFLs"]
+    },
+    "Soccer": {
+        "GK": ["Saves", "Clean Sheets", "Goals Allowed"],
+        "DEF": ["Tackles", "Clearances", "Interceptions"],
+        "MID": ["Assists", "Pass Accuracy", "Tackles"],
+        "FWD": ["Goals", "Shots on Target", "Assists"]
     },
     "Baseball": {
         "Pitcher": ["ERA", "Wins", "Losses", "Strikeouts", "Walks", "WHIP", "Innings Pitched", "Hits Allowed", "Runs Allowed"],
@@ -25,6 +40,52 @@ sport_data = {
         "Catcher": ["Caught Stealing %", "Putouts", "Errors", "Passed Balls"],
         "Infielder": ["Batting Average", "Home Runs", "RBIs", "Runs Scored", "Stolen Bases", "Fielding %", "Double Plays", "Errors"],
         "Outfielder": ["Batting Average", "Home Runs", "RBIs", "Runs Scored", "Stolen Bases", "Fielding %", "Errors"]
+    },
+    "Track & Field": {
+        "Sprinter": ["100m Time", "200m Time", "Relay Splits"],
+        "Distance": ["800m Time", "1600m Time", "5K Time"],
+        "Hurdles": ["110m Hurdles", "300m Hurdles"],
+        "Jumps": ["High Jump", "Long Jump", "Triple Jump"],
+        "Throws": ["Shot Put", "Discus", "Javelin"]
+    },
+    "Volleyball": {
+        "Setter": ["Assists", "Digs", "Aces"],
+        "Hitter": ["Kills", "Hitting %", "Blocks"],
+        "Libero": ["Digs", "Serve Receive %", "Aces"]
+    },
+    "Wrestling": {
+        "Lightweight": ["Wins", "Pins", "Takedowns"],
+        "Middleweight": ["Wins", "Pins", "Escapes"],
+        "Heavyweight": ["Wins", "Pins", "Reversals"]
+    },
+    "Swimming & Diving": {
+        "Swimmer": ["100m Freestyle", "200m IM", "Relay Splits"],
+        "Diver": ["1m Score", "3m Score", "Form Score"]
+    },
+    "Tennis": {
+        "Singles": ["Wins", "Aces", "Unforced Errors"],
+        "Doubles": ["Wins", "Net Points", "Double Faults"]
+    },
+    "Golf": {
+        "Player": ["Scoring Avg", "Fairways Hit", "Putts/Round"]
+    },
+    "Lacrosse": {
+        "Attack": ["Goals", "Assists", "Shots on Goal"],
+        "Midfield": ["Ground Balls", "Goals", "Clears"],
+        "Defense": ["Caused Turnovers", "Ground Balls", "Saves"]
+    },
+    "Cheerleading": {
+        "Base": ["Stunt Success", "Strength", "Stability"],
+        "Flyer": ["Balance", "Flexibility", "Execution"],
+        "Backspot": ["Support Rating", "Safety Awareness"]
+    },
+    "Esports": {
+        "Player": ["Reaction Time", "KDA", "Win Rate"]
+    },
+    "Flag Football": {
+        "QB": ["Passing Yards", "TDs", "Completions"],
+        "WR": ["Receiving Yards", "Receptions", "TDs"],
+        "DB": ["Interceptions", "Flags Pulled", "Passes Defended"]
     }
 }
 
