@@ -4,7 +4,7 @@ import requests
 
 st.set_page_config(page_title="Level Finder GPT", page_icon="🏅", layout="centered")
 
-st.markdown(\"""
+st.markdown("""
     <style>
     .title {
         text-align: center;
@@ -19,7 +19,7 @@ st.markdown(\"""
         margin-bottom: 20px;
     }
     </style>
-\""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 st.markdown("<div class='title'>🎯 Level Finder GPT</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>Find your most realistic college playing level — powered by AI</div>", unsafe_allow_html=True)
@@ -39,7 +39,7 @@ with st.form("level_finder_form"):
     position = st.text_input("Primary Position")
     gpa = st.text_input("GPA", "3.8")
     age = st.text_input("Age", "17")
-    height = st.text_input("Height (e.g., 6'2\\")", "6'2\\\"")
+    height = st.text_input("Height (e.g., 6'2\")", "6'2")
     weight = st.text_input("Weight (e.g., 180 lbs)", "180 lbs")
     experience = st.text_input("Athletic Experience", "4 years varsity")
     stats = st.text_area("Key Sport Stats", "15 PPG, 8 RPG, 5 APG")
@@ -68,7 +68,7 @@ if submit:
 
             if result.get("success"):
                 st.success("✅ Evaluation Complete")
-                st.markdown(f"### 🧾 Recommendation Summary")
+                st.markdown("### 🧾 Recommendation Summary")
                 st.markdown(f"**🎓 Recommended Level:** {result['level']}")
                 st.markdown(f"**📌 Reason:** {result['reason']}")
                 st.markdown("**📈 Action Steps:**")
@@ -96,7 +96,3 @@ if submit:
 
         except Exception as e:
             st.error(f"Exception occurred: {str(e)}")
-"""
-
-with open("/mnt/data/final_streamlit_level_finder_gpt.py", "w") as file:
-    file.write(streamlit_script)
