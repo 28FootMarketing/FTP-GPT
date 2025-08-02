@@ -1,36 +1,76 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="🏀 Level Finder GPT", layout="centered")
-
-st.title("🏀 Level Finder GPT")
+st.set_page_config(page_title="Level Finder GPT", layout="centered")
+st.title(" Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
-# Form inputs
+# Step 1: Define sport → positions → stats
+sport_data = {
+    "Basketball": {
+        "positions": ["PG", "SG", "SF", "PF", "C"],
+        "stats": ["PPG", "RPG", "APG", "FG%", "Steals", "Blocks"]
+    },
+    "Football": {
+        "positions": ["QB", "RB", "WR", "LB", "DB", "OL", "DL"],
+        "stats": ["Passing Yards", "Rushing Yards", "Receiving Yards", "Tackles", "Sacks", "Interceptions"]
+    },
+    "Soccer": {
+        "positions": ["GK", "DEF", "MID", "FWD"],
+        "stats": ["Goals", "Assists", "Clean Sheets", "Saves", "Tackles", "Pass Accuracy"]
+    },
+    "Baseball": {
+        "positions": ["P", "C", "1B", "2B", "3B", "SS", "OF"],
+        "stats": ["Batting Average", "Home Runs", "RBIs", "Stolen Bases", "ERA", "Strikeouts"]
+    },
+    "Track": {
+        "positions": ["Sprinter", "Distance", "Hurdles", "Jumps", "Throws"],
+        "stats": ["100m Time", "Mile Time", "Hurdles Time", "Jump Height", "Throw Distance"]
+    }
+}
+
+# Step 2: Form
 with st.form("level_form"):
-    sport = st.selectbox("Primary Sport", ["Football", "Basketball", "Soccer", "Baseball", "Softball", "Track", "Wrestling", "Other"])
+    sport = st.selectbox("Primary Sport", list(sport_data.keys()))
+
+    # Dynamic position list
+    position = st.selectbox("Primary Position", sport_data[sport]["positions"])
+
+    # Show stat inputs
+    stat_inputs = {}
+    st.markdown("**Enter your sport-specific stats:**")
+    for stat in sport_data[sport]["stats"]:
+        value = st.text_input(f"{stat}")
+        stat_inputs[stat] = value
+
+    # General info
     gpa = st.text_input("GPA (e.g., 3.5)")
     height = st.text_input("Height (e.g., 6'1\")")
     weight = st.text_input("Weight (e.g., 185 lbs)")
-    stats = st.text_area("Sport-Specific Stats (e.g., 18 PPG, 7 RPG)")
     activity = st.text_area("Recruiting Activity (e.g., emailed 10 coaches, posted highlights on Twitter)")
     age = st.text_input("Age (e.g., 17)")
     experience = st.text_input("Experience (e.g., 4 years varsity)")
+
     submitted = st.form_submit_button("Find My Level")
 
-# Submit and display recommendation
+# Step 3: Submit
 if submitted:
     with st.spinner("Analyzing your profile..."):
+        # Build stat string
+        stats_combined = ", ".join([f"{k}: {v}" for k, v in stat_inputs.items() if v])
+
         payload = {
             "sport": sport,
+            "position": position,
             "gpa": gpa,
             "height": height,
             "weight": weight,
-            "stats": stats,
+            "stats": stats_combined,
             "activity": activity,
             "age": age,
             "experience": experience
         }
+
         try:
             response = requests.post("https://your-vps-url.com/webhook/level-finder", json=payload)
             result = response.json()
