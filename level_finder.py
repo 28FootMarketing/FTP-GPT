@@ -54,7 +54,7 @@ for category in stat_categories.get(sport, ["Custom Stat 1", "Custom Stat 2"]):
 st.subheader("Academic and Personal Info")
 gpa = st.text_input("GPA", "3.5")
 age = st.text_input("Age", "17")
-height = st.text_input("Height", "6'2"")
+height = st.text_input("Height", "6'2\"")
 weight = st.text_input("Weight", "180 lbs")
 experience = st.text_input("Experience (e.g. 3 years varsity)", "")
 activity = st.text_input("Training/Playing Activity", "3 games per week, daily practice")
