@@ -38,7 +38,7 @@ def main():
         try:
             with st.spinner("Getting your recommendation..."):
                 response = requests.post(
-                    "https://your-vps-url.com/webhook-level-finder", 
+                    "https://n8n.srv931648.hstgr.cloud/webhook-test/webhook-level-finder", 
                     json=payload,
                     timeout=30
                 )
