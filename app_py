@@ -7,7 +7,7 @@ st.markdown("Enter your details below to get a realistic college level recommend
 
 sport = st.selectbox("Primary Sport", ["Football", "Basketball", "Soccer", "Baseball", "Softball", "Track", "Wrestling", "Other"])
 gpa = st.text_input("GPA (e.g., 3.5)")
-height = st.text_input("Height (e.g., 6'1\")")
+height = st.text_input("Height (e.g., 6\'1\")")
 weight = st.text_input("Weight (e.g., 185 lbs)")
 stats = st.text_area("Sport-Specific Stats (e.g., 18 PPG, 7 RPG)")
 activity = st.text_area("Recruiting Activity (e.g., emailed 10 coaches, posted highlights on Twitter)")
@@ -21,6 +21,10 @@ if st.button("Find My Level"):
         "stats": stats,
         "activity": activity
     }
-    response = requests.post("https://your-vps-url.com/webhook-level-finder", json=payload)
-    st.markdown("### 📊 GPT Recommendation")
-    st.write(response.text)
+    try:
+        response = requests.post("https://your-vps-url.com/webhook-level-finder", json=payload)
+        response.raise_for_status()
+        st.markdown("### 📊 GPT Recommendation")
+        st.write(response.text)
+    except requests.exceptions.RequestException as e:
+        st.error(f"Request failed: {e}"
