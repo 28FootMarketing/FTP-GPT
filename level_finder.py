@@ -1,71 +1,113 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title=" Level Finder GPT", layout="centered")
-st.title(" Level Finder GPT")
+st.set_page_config(page_title="Level Finder GPT", layout="centered")
+st.title("Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
-# Expanded sport → positions → stats dictionary
+# Simplified sample of all NFHS-recognized sports (expandable)
 sport_data = {
     "Basketball": {
-        "positions": ["PG", "SG", "SF", "PF", "C"],
-        "stats": ["PPG", "RPG", "APG", "FG%", "Steals", "Blocks"]
+        "PG": ["PPG", "APG", "Steals", "FG%"],
+        "SG": ["PPG", "3P%", "Steals", "FG%"],
+        "SF": ["PPG", "RPG", "Steals", "Blocks"],
+        "PF": ["PPG", "RPG", "Blocks", "FG%"],
+        "C":  ["RPG", "Blocks", "FG%", "PPG"]
     },
     "Football": {
-        "positions": ["QB", "RB", "WR", "LB", "DB", "OL", "DL"],
-        "stats": ["Passing Yards", "Rushing Yards", "Receiving Yards", "Tackles", "Sacks", "Interceptions"]
+        "QB": ["Passing Yards", "TDs", "Completions", "INTs"],
+        "RB": ["Rushing Yards", "TDs", "Carries", "Yards/Carry"],
+        "WR": ["Receiving Yards", "TDs", "Receptions", "Yards/Catch"],
+        "LB": ["Tackles", "Sacks", "INTs", "Forced Fumbles"],
+        "DB": ["Tackles", "INTs", "Passes Defended", "TDs"],
+        "OL": ["Pancake Blocks", "Penalties", "Sacks Allowed"],
+        "DL": ["Tackles", "Sacks", "Pressures", "TFLs"]
     },
     "Soccer": {
-        "positions": ["GK", "DEF", "MID", "FWD"],
-        "stats": ["Goals", "Assists", "Clean Sheets", "Saves", "Tackles", "Pass Accuracy"]
+        "GK": ["Saves", "Clean Sheets", "Goals Allowed"],
+        "DEF": ["Tackles", "Clearances", "Interceptions"],
+        "MID": ["Assists", "Pass Accuracy", "Tackles"],
+        "FWD": ["Goals", "Shots on Target", "Assists"]
     },
     "Baseball": {
-        "positions": ["P", "C", "1B", "2B", "3B", "SS", "OF"],
-        "stats": ["Batting Average", "Home Runs", "RBIs", "Stolen Bases", "ERA", "Strikeouts"]
+        "P": ["ERA", "Strikeouts", "WHIP", "Walks"],
+        "C": ["Caught Stealing %", "Putouts", "Fielding %"],
+        "INF": ["Batting Average", "RBIs", "Double Plays"],
+        "OF": ["Fielding %", "Assists", "Errors"]
     },
     "Softball": {
-        "positions": ["P", "C", "1B", "2B", "3B", "SS", "OF"],
-        "stats": ["Batting Average", "RBIs", "Stolen Bases", "ERA", "Strikeouts", "On-base %"]
-    },
-    "Volleyball": {
-        "positions": ["Setter", "Outside Hitter", "Middle Blocker", "Libero", "Opposite"],
-        "stats": ["Kills", "Assists", "Blocks", "Digs", "Aces", "Hitting %"]
+        "P": ["ERA", "Strikeouts", "Walks"],
+        "C": ["Caught Stealing %", "Putouts"],
+        "INF": ["Batting Avg", "RBIs", "Errors"],
+        "OF": ["Fielding %", "Assists"]
     },
     "Track & Field": {
-        "positions": ["Sprinter", "Distance", "Hurdles", "Jumps", "Throws"],
-        "stats": ["100m Time", "Mile Time", "Hurdles Time", "Jump Distance", "Throw Distance"]
+        "Sprinter": ["100m Time", "200m Time", "Relay Splits"],
+        "Distance": ["800m Time", "1600m Time", "5K Time"],
+        "Hurdles": ["110m Hurdles", "300m Hurdles"],
+        "Jumps": ["High Jump", "Long Jump", "Triple Jump"],
+        "Throws": ["Shot Put", "Discus", "Javelin"]
+    },
+    "Volleyball": {
+        "Setter": ["Assists", "Digs", "Aces"],
+        "Hitter": ["Kills", "Hitting %", "Blocks"],
+        "Libero": ["Digs", "Serve Receive %", "Aces"]
     },
     "Wrestling": {
-        "positions": ["Lightweight", "Middleweight", "Heavyweight"],
-        "stats": ["Wins", "Pins", "Takedowns", "Escape Points", "Matches"]
+        "Lightweight": ["Wins", "Pins", "Takedowns"],
+        "Middleweight": ["Wins", "Pins", "Escapes"],
+        "Heavyweight": ["Wins", "Pins", "Reversals"]
+    },
+    "Swimming & Diving": {
+        "Swimmer": ["100m Freestyle", "200m IM", "Relay Splits"],
+        "Diver": ["1m Score", "3m Score", "Form Score"]
+    },
+    "Tennis": {
+        "Singles": ["Wins", "Aces", "Unforced Errors"],
+        "Doubles": ["Wins", "Net Points", "Double Faults"]
+    },
+    "Golf": {
+        "Player": ["Scoring Avg", "Fairways Hit", "Putts/Round"]
+    },
+    "Lacrosse": {
+        "Attack": ["Goals", "Assists", "Shots on Goal"],
+        "Midfield": ["Ground Balls", "Goals", "Clears"],
+        "Defense": ["Caused Turnovers", "Ground Balls", "Saves"]
     },
     "Cheerleading": {
-        "positions": ["Base", "Flyer", "Backspot"],
-        "stats": ["Stunt Difficulty", "Routine Execution", "Jumps Score", "Tumbling Score"]
+        "Base": ["Stunt Success", "Strength", "Stability"],
+        "Flyer": ["Balance", "Flexibility", "Execution"],
+        "Backspot": ["Support Rating", "Safety Awareness"]
+    },
+    "Esports": {
+        "Player": ["Reaction Time", "KDA", "Win Rate"]
+    },
+    "Flag Football": {
+        "QB": ["Passing Yards", "TDs", "Completions"],
+        "WR": ["Receiving Yards", "Receptions", "TDs"],
+        "DB": ["Interceptions", "Flags Pulled", "Passes Defended"]
     }
 }
 
-# Step 2: Form UI
-with st.form("level_form"):
-    sport = st.selectbox("Primary Sport", list(sport_data.keys()))
-    position = st.selectbox("Primary Position", sport_data[sport]["positions"])
-    stat_inputs = {}
-    st.markdown("**Enter your sport-specific stats:**")
-    for stat in sport_data[sport]["stats"]:
-        value = st.text_input(f"{stat}")
-        stat_inputs[stat] = value
+# UI selections
+sport = st.selectbox("Select Your Sport", list(sport_data.keys()))
+position = st.selectbox("Select Your Position", list(sport_data[sport].keys()))
+stat_inputs = {}
+st.markdown("**Enter your sport-specific stats:**")
+for stat in sport_data[sport][position]:
+    stat_inputs[stat] = st.text_input(stat)
 
-    # General info
+# Additional inputs
+with st.form("level_form"):
     gpa = st.text_input("GPA (e.g., 3.5)")
     height = st.text_input("Height (e.g., 6'1\")")
     weight = st.text_input("Weight (e.g., 185 lbs)")
-    activity = st.text_area("Recruiting Activity (e.g., emailed 10 coaches, posted highlights on Twitter)")
+    activity = st.text_area("Recruiting Activity (e.g., tournaments, showcases)")
     age = st.text_input("Age (e.g., 17)")
     experience = st.text_input("Experience (e.g., 4 years varsity)")
-
     submitted = st.form_submit_button("Find My Level")
 
-# Step 3: Submit
+# Submit
 if submitted:
     with st.spinner("Analyzing your profile..."):
         stats_combined = ", ".join([f"{k}: {v}" for k, v in stat_inputs.items() if v])
