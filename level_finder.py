@@ -1,11 +1,11 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Level Finder GPT", layout="centered")
+st.set_page_config(page_title=" Level Finder GPT", layout="centered")
 st.title(" Level Finder GPT")
 st.markdown("Enter your details below to get a realistic college level recommendation:")
 
-# Step 1: Define sport → positions → stats
+# Expanded sport → positions → stats dictionary
 sport_data = {
     "Basketball": {
         "positions": ["PG", "SG", "SF", "PF", "C"],
@@ -23,20 +23,32 @@ sport_data = {
         "positions": ["P", "C", "1B", "2B", "3B", "SS", "OF"],
         "stats": ["Batting Average", "Home Runs", "RBIs", "Stolen Bases", "ERA", "Strikeouts"]
     },
-    "Track": {
+    "Softball": {
+        "positions": ["P", "C", "1B", "2B", "3B", "SS", "OF"],
+        "stats": ["Batting Average", "RBIs", "Stolen Bases", "ERA", "Strikeouts", "On-base %"]
+    },
+    "Volleyball": {
+        "positions": ["Setter", "Outside Hitter", "Middle Blocker", "Libero", "Opposite"],
+        "stats": ["Kills", "Assists", "Blocks", "Digs", "Aces", "Hitting %"]
+    },
+    "Track & Field": {
         "positions": ["Sprinter", "Distance", "Hurdles", "Jumps", "Throws"],
-        "stats": ["100m Time", "Mile Time", "Hurdles Time", "Jump Height", "Throw Distance"]
+        "stats": ["100m Time", "Mile Time", "Hurdles Time", "Jump Distance", "Throw Distance"]
+    },
+    "Wrestling": {
+        "positions": ["Lightweight", "Middleweight", "Heavyweight"],
+        "stats": ["Wins", "Pins", "Takedowns", "Escape Points", "Matches"]
+    },
+    "Cheerleading": {
+        "positions": ["Base", "Flyer", "Backspot"],
+        "stats": ["Stunt Difficulty", "Routine Execution", "Jumps Score", "Tumbling Score"]
     }
 }
 
-# Step 2: Form
+# Step 2: Form UI
 with st.form("level_form"):
     sport = st.selectbox("Primary Sport", list(sport_data.keys()))
-
-    # Dynamic position list
     position = st.selectbox("Primary Position", sport_data[sport]["positions"])
-
-    # Show stat inputs
     stat_inputs = {}
     st.markdown("**Enter your sport-specific stats:**")
     for stat in sport_data[sport]["stats"]:
@@ -56,9 +68,7 @@ with st.form("level_form"):
 # Step 3: Submit
 if submitted:
     with st.spinner("Analyzing your profile..."):
-        # Build stat string
         stats_combined = ", ".join([f"{k}: {v}" for k, v in stat_inputs.items() if v])
-
         payload = {
             "sport": sport,
             "position": position,
@@ -70,11 +80,9 @@ if submitted:
             "age": age,
             "experience": experience
         }
-
         try:
             response = requests.post("https://your-vps-url.com/webhook/level-finder", json=payload)
             result = response.json()
-
             if result.get("success"):
                 st.markdown("### ✅ GPT Recommendation")
                 st.markdown(f"**🏅 Recommended Level:** {result.get('level')}")
@@ -87,6 +95,5 @@ if submitted:
                 st.error("AI analysis failed.")
                 st.text(f"Error: {result.get('error')}")
                 st.text(f"Raw Output: {result.get('rawOutput')}")
-
         except Exception as e:
             st.error(f"Error occurred: {e}")
