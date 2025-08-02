@@ -1,11 +1,19 @@
 import streamlit as st
 import requests
+from datetime import datetime
 
-st.set_page_config(page_title="🏀 Level Finder GPT", layout="centered")
-st.title("🏀 Level Finder GPT")
-st.markdown("Enter your details below to get a realistic college level recommendation:")
+st.set_page_config(page_title="🏆 Level Finder GPT", layout="centered")
 
-# Full NFHS sport-to-position-to-stat map
+# Header
+st.markdown("""
+    <h1 style="text-align:center; color:#1E3A8A;">🏆 Level Finder GPT</h1>
+    <h4 style="text-align:center; color:#3B82F6;">
+        Discover your most realistic college playing level based on performance, academics, and more.
+    </h4>
+    <hr style="border-top: 2px solid #3B82F6;">
+""", unsafe_allow_html=True)
+
+# Sport, Position, Stat Data
 sport_data = {
     "Basketball": {
         "PG": ["PPG", "APG", "Steals", "FG%"],
@@ -34,117 +42,85 @@ sport_data = {
         "Catcher": ["Caught Stealing %", "Putouts", "Errors", "Passed Balls"],
         "Infielder": ["Batting Average", "RBIs", "Stolen Bases", "Fielding %"],
         "Outfielder": ["Batting Average", "Home Runs", "Fielding %", "Errors"]
-    },
-    "Soccer": {
-        "GK": ["Saves", "Clean Sheets", "Goals Allowed"],
-        "DEF": ["Tackles", "Clearances", "Interceptions"],
-        "MID": ["Assists", "Pass Accuracy", "Tackles"],
-        "FWD": ["Goals", "Shots on Target", "Assists"]
-    },
-    "Volleyball": {
-        "Setter": ["Assists", "Digs", "Aces"],
-        "Hitter": ["Kills", "Hitting %", "Blocks"],
-        "Libero": ["Digs", "Serve Receive %", "Aces"]
-    },
-    "Track & Field": {
-        "Sprinter": ["100m Time", "200m Time", "Relay Splits"],
-        "Distance": ["800m Time", "1600m Time", "5K Time"],
-        "Hurdles": ["110m Hurdles", "300m Hurdles"],
-        "Jumps": ["High Jump", "Long Jump", "Triple Jump"],
-        "Throws": ["Shot Put", "Discus", "Javelin"]
-    },
-    "Wrestling": {
-        "Lightweight": ["Wins", "Pins", "Takedowns"],
-        "Middleweight": ["Wins", "Pins", "Escapes"],
-        "Heavyweight": ["Wins", "Pins", "Reversals"]
-    },
-    "Swimming & Diving": {
-        "Swimmer": ["100m Freestyle", "200m IM", "Relay Splits"],
-        "Diver": ["1m Score", "3m Score", "Form Score"]
-    },
-    "Tennis": {
-        "Singles": ["Wins", "Aces", "Unforced Errors"],
-        "Doubles": ["Wins", "Net Points", "Double Faults"]
-    },
-    "Golf": {
-        "Player": ["Scoring Avg", "Fairways Hit", "Putts/Round"]
-    },
-    "Lacrosse": {
-        "Attack": ["Goals", "Assists", "Shots on Goal"],
-        "Midfield": ["Ground Balls", "Goals", "Clears"],
-        "Defense": ["Caused Turnovers", "Ground Balls", "Saves"]
-    },
-    "Cheerleading": {
-        "Base": ["Stunt Success", "Strength", "Stability"],
-        "Flyer": ["Balance", "Flexibility", "Execution"],
-        "Backspot": ["Support Rating", "Safety Awareness"]
-    },
-    "Esports": {
-        "Player": ["Reaction Time", "KDA", "Win Rate"]
-    },
-    "Flag Football": {
-        "QB": ["Passing Yards", "TDs", "Completions"],
-        "WR": ["Receiving Yards", "Receptions", "TDs"],
-        "DB": ["Interceptions", "Flags Pulled", "Passes Defended"]
     }
 }
 
-# UI
+# Input: Athlete Info
+st.markdown("### 🧍 Athlete Information")
 name = st.text_input("Athlete Name")
-sport = st.selectbox("Sport", list(sport_data.keys()))
-position = st.selectbox("Position", list(sport_data[sport].keys()))
+col1, col2, col3 = st.columns(3)
+with col1:
+    height = st.text_input("Height", "6'2"")
+with col2:
+    weight = st.text_input("Weight", "180 lbs")
+with col3:
+    age = st.text_input("Age", "17")
 
-st.markdown("**Enter your sport-specific stats:**")
+gpa = st.text_input("GPA", "3.8", help="Your current unweighted GPA on a 4.0 scale")
+experience = st.text_input("Experience", help="How many years have you played?")
+activity = st.text_area("Recruiting Activity", help="Any outreach to coaches, highlight videos, camps, etc.")
+comment = st.text_input("Coach/Staff Comment")
+
+st.markdown("---")
+st.markdown("### 🏅 Sport & Stats")
+
+# Sport + Position
+sport = st.selectbox("Choose your sport", list(sport_data.keys()))
+position = st.selectbox("Choose your position", list(sport_data[sport].keys()))
+st.markdown("#### 🔢 Enter your sport-specific stats:")
 stat_inputs = {}
 for stat in sport_data[sport][position]:
     stat_inputs[stat] = st.text_input(stat)
 
-# Other info
-with st.form("level_form"):
-    gpa = st.text_input("GPA")
-    height = st.text_input("Height")
-    weight = st.text_input("Weight")
-    activity = st.text_area("Recruiting Activity")
-    age = st.text_input("Age")
-    experience = st.text_input("Experience")
-    comment = st.text_input("Coach/Staff Comment")
-    submitted = st.form_submit_button("Find My Level")
-
-# Submission
-if submitted:
+# Submit
+if st.button("🔍 Find My Level"):
     with st.spinner("Analyzing your profile..."):
         stats_combined = ", ".join([f"{k}: {v}" for k, v in stat_inputs.items() if v])
         payload = {
+            "timestamp": datetime.now().isoformat(),
             "name": name,
             "sport": sport,
             "position": position,
             "gpa": gpa,
             "height": height,
             "weight": weight,
-            "stats": stats_combined,
-            "activity": activity,
             "age": age,
-            "experience": experience
+            "experience": experience,
+            "stats": stats_combined,
+            "activity": activity
         }
         try:
             response = requests.post("https://your-vps-url.com/webhook/level-finder", json=payload)
             try:
                 result = response.json()
             except ValueError:
-                st.error("❌ Invalid JSON response")
+                st.error("❌ Invalid JSON response from server.")
                 st.text(response.text)
                 st.stop()
+
             if result.get("success"):
-                st.markdown("### ✅ GPT Recommendation")
-                st.markdown(f"**🏅 Level:** {result.get('level')}")
-                st.markdown(f"**✍️ Reason:** {result.get('reason')}")
-                st.markdown("**🎯 Action Steps:**")
-                for action in result.get("actions", []):
-                    st.markdown(f"- {action}")
-                st.markdown(f"**📋 Summary:** {result.get('summary')}")
-                st.markdown(f"**🗒️ Comment:** {comment if comment else 'N/A'}")
+                st.markdown(f"""
+                    <div style="background-color:#F0F9FF;padding:15px;border-radius:10px;border-left:5px solid #3B82F6;">
+                        <h4>🎯 <b>Recommended Level:</b> {result.get('level')}</h4>
+                        <p><b>Reason:</b> {result.get('reason')}</p>
+                        <p><b>Summary:</b> {result.get('summary')}</p>
+                        <p><b>Action Steps:</b></p>
+                        <ul>
+                            {''.join([f"<li>{a}</li>" for a in result.get("actions", [])])}
+                        </ul>
+                        <p><b>Coach Comment:</b> {comment if comment else "N/A"}</p>
+                    </div>
+                """, unsafe_allow_html=True)
             else:
-                st.error("AI analysis failed.")
+                st.error("AI recommendation failed.")
                 st.text(f"Error: {result.get('error')}")
         except Exception as e:
             st.error(f"Error occurred: {e}")
+
+# Footer
+st.markdown("""
+    <hr>
+    <p style="text-align:center;font-size:0.9em;color:#9CA3AF;">
+        Powered by <b>Facilitate The Process</b> | Built with Streamlit + GPT + Ollama
+    </p>
+""", unsafe_allow_html=True)
